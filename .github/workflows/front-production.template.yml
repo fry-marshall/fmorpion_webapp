@@ -34,8 +34,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
-          cd "${{ inputs.folder }}" 
-
           scp -P ${{ secrets.VPS_PORT }} docker-compose.yml Makefile ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:/home/${{ inputs.folder }}/
 
       - name: Log in to VPS
