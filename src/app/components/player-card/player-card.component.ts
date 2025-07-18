@@ -12,6 +12,6 @@ export class PlayerCardComponent {
   isPlaying = input<boolean>(true);
 
   get name(){
-    return this.player().name?.substring(0,1)?.toUpperCase() ?? '' + this.player().name?.substring(1) ?? ''
+    return (this.player().name?.substring(0,1)?.toUpperCase() ?? '') + (this.player().name?.substring(1) ?? '')
   }
 }
