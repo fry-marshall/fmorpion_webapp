@@ -19,7 +19,7 @@ jobs:
     if: |
       (github.event_name == 'workflow_dispatch' && github.event.inputs.push_webapp == 'true') ||
       (github.event_name == 'release' && needs.check_tag.outputs.tag != '')
-    uses: ./.github/workflows/push-image.template.yml@main
+    uses: ./.github/workflows/push-image.template.yml
     secrets: 
       GH_TOKEN: ${{ secrets.PAT }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -27,7 +27,7 @@ jobs:
 
   deploy-image:
     needs: push-image
-    uses: ./.github/workflows/front-production.template.yml@main
+    uses: ./.github/workflows/front-production.template.yml
     with:
       folder: fmorpion-webapp
     secrets:
