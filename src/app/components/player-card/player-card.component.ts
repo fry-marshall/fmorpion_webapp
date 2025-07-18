@@ -10,4 +10,8 @@ import { Player } from '../../auth-view/player.interface';
 export class PlayerCardComponent {
   player = input.required<Player>();
   isPlaying = input<boolean>(true);
+
+  get name(){
+    return this.player().name?.substring(0,1)?.toUpperCase() ?? '' + this.player().name?.substring(1) ?? ''
+  }
 }
