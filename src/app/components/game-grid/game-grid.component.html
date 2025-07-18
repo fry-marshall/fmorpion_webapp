@@ -1,0 +1,5 @@
+<div class="w-full h-[320px] bg-[#163C86] rounded-2xl grid grid-cols-3 gap-y-[4px] justify-items-center items-center">
+    @for(grid of party(); track grid; let idx = $index){
+        <app-grid [isGridWin]="lineGridIndexs().includes(idx)" class="w-[75px] h-[75px] cursor-pointer" [sign]="grid.sign" (click)="play(idx)" />
+    }
+</div>

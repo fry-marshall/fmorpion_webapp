@@ -1,0 +1,20 @@
+<app-notification [message]="notificationMessage" [type]="notificationType" [show]="showNotification"
+    [duration]="3000"></app-notification>
+<div class="bg-primary h-full w-full rounded-md flex flex-col justify-center">
+    <img class="w-[350px] h-[350px]" src="logo.png" alt="">
+    <form [formGroup]="signInForm" (ngSubmit)="onSubmit()" class="w-full flex flex-col items-center justify-center gap-8 p-[16px] px-[36px]">
+        <div class="flex flex-col gap-2 w-full">
+            <p class="text-white">Pseudo</p>
+            <input type="text" formControlName="pseudo" id="" class="w-full p-2 bg-[#D9D9D9] rounded-md">
+        </div>
+        <button type="submit" [disabled]="signInForm.invalid"
+            [class]="signInForm.invalid ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#E7E7E7] hover:bg-[#E7E7E7] cursor-pointer'"
+            class="p-4 flex justify-center rounded-4xl bg-[#E7E7E7] w-full cursor-pointer font-medium">
+            @if(playerStore.status() === Status.PENDING) {
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            } @else {
+                Sign in
+            }
+        </button>
+    </form>
+</div>

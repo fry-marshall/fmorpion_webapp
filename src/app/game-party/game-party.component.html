@@ -1,0 +1,68 @@
+<app-notification [message]="notificationMessage" [type]="notificationType" [show]="showNotification"
+    [duration]="3000"></app-notification>
+<div class="flex flex-col w-full h-full bg-primary rounded-md p-[16px] gap-12">
+    <div class="players-cards flex flex-row justify-between w-full">
+        @for(player of players; track player){
+        <app-player-card [player]="player" />
+        }
+    </div>
+    <app-game-grid [lineGridIndexs]="lineGridIndexs(this.partyStore.grids())" [party]="partyStore.grids()"
+        (onClickGrid)="play($event)" />
+</div>
+
+@if(displayWaitingPlayer()){
+<app-modal [canClose]="false">
+    <div class="absolute bg-primary w-[200px] h-[200px] rounded-2xl flex justify-center items-center">
+        <p class="text-white font-bold">Waiting player ...</p>
+    </div>
+</app-modal>
+}
+
+@if(displayCodeModal()){
+<app-modal>
+    <div class="absolute bg-primary w-[200px] h-[200px] rounded-2xl flex justify-center items-center">
+        @if(partyStore.status() === Status.PENDING) {
+        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+        } @else {
+        <p class="text-white font-bold">Code: {{ partyStore.currentParty()?.code }}</p>
+        }
+    </div>
+</app-modal>
+}
+
+@if(isJoining()){
+<app-modal [canClose]="false">
+    <div class="absolute bg-primary w-[220px] h-[220px] rounded-2xl flex justify-center items-center">
+        <form [formGroup]="form" (ngSubmit)="joinParty()" class="h-full justify-center flex flex-col gap-12">
+            <div class="flex flex-col gap-2">
+                <p class="text-white">Code</p>
+                <input type="text" formControlName="code" id="" class="p-2 bg-[#D9D9D9] rounded-md">
+            </div>
+            <button type="submit" [disabled]="form.invalid"
+                [class]="form.invalid ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#E7E7E7] hover:bg-[#E7E7E7] cursor-pointer'"
+                class="p-4 flex justify-center rounded-4xl bg-[#E7E7E7] cursor-pointer font-bold">
+                @if(partyStore.status() === Status.PENDING) {
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                } @else {
+                Join the party
+                }
+            </button>
+        </form>
+    </div>
+</app-modal>
+}
+
+@if(hasWon){
+<app-modal>
+    <div class="absolute bg-primary w-[200px] h-[200px] rounded-2xl flex justify-center items-center">
+        <p class="text-white font-bold">
+            @if(hasWon.won){
+                🥳😍 Congratulations !
+            }
+            @else{
+                🥲☹️ Sadly, You lost
+            }
+        </p>
+    </div>
+</app-modal>
+}

@@ -1,0 +1,9 @@
+@if(display()){
+    <div class="absolute inset-0 flex justify-center items-center">
+        <div class="bg-black opacity-35 w-full h-full"></div>
+        <ng-content></ng-content>
+        @if(canClose()){
+            <div (click)="closeModal()" class="cursor-pointer p-[15px] w-[15px] h-[15px] rounded-[50%] shadow-xs absolute top-46 right-17 bg-red-500 flex text-xs justify-center items-center text-white">X</div>
+        }
+    </div>
+}

@@ -1,0 +1,5 @@
+<div [class]="isPlaying() ? 'border-white border-white border-1' : 'border-none'" class="w-[110px] h-[150px] bg-[#334D5C] rounded-2xl flex flex-col p-[6px] justify-around items-center">
+    <img class="h-[70px]" [src]="player().img" alt="">
+    <p class="font-bold text-white">{{ player().name.substring(0,1).toUpperCase() + player().name.substring(1) }}</p>
+    <img class="w-[20px]" [src]="player().sign" alt="">
+</div>

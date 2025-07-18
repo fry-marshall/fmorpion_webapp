@@ -1,0 +1,8 @@
+<div class="w-[75px] h-[75px] flex justify-center items-center rounded-xl" [ngClass]="{
+    'bg-primary': !isGridWin(),
+    'bg-green-500': isGridWin(),
+}">
+    @if(sign()){
+        <img class="h-[30px]" [src]="sign()" alt="">
+    }
+</div>
