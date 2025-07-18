@@ -1,0 +1,8 @@
+
+services:
+
+  fmorpion_webapp:
+    image: frymarshall/fmorpion_webapp
+    container_name: fmorpion_webapp
+    ports: 
+      - 4204:80

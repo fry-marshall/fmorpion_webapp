@@ -1,0 +1,39 @@
+name: Push And Deploy to production on Release
+
+on:
+  release:
+    types:
+      - published
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      push_webapp:
+        description: 'Push Docker Image'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  push-image:
+    if: |
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.push_webapp == 'true') ||
+      (github.event_name == 'release' && needs.check_tag.outputs.tag != '')
+    uses: ./.github/workflows/push-image.template.yml@main
+    secrets: 
+      GH_TOKEN: ${{ secrets.PAT }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+  deploy-image:
+    needs: push-image
+    uses: ./.github/workflows/front-production.template.yml@main
+    with:
+      folder: fmorpion-webapp
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
+      VPS_IP: ${{ secrets.VPS_IP }}
+      VPS_PORT: ${{ secrets.VPS_PORT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
