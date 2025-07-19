@@ -30,8 +30,13 @@ export class GameOptionsComponent implements OnInit {
     }
 
     const party = this.partyStore.currentParty();
-    if(party && party.status === PartyStatus.FINISHED){
+    if (party && party.status === PartyStatus.FINISHED) {
       this.partyStore.resetGrid()
     }
+  }
+
+  joinParty() {
+    const party = this.partyStore.currentParty();
+    this.socketService.emit('rejoinParty', { partyId: party?.id });
   }
 }

@@ -5,7 +5,6 @@ import { PartyService } from "./party.service";
 import { inject } from "@angular/core";
 import { tapResponse } from "@ngrx/operators";
 import { ErrorResponse, PlayerStore, Status } from "../auth-view/player.store";
-import { Player } from "../auth-view/player.interface";
 import { SocketService } from "../socket.service";
 import { get2dCoordinatesToGridIndex, getGridIndexTo2dCoordinates, lineGridIndexs } from "./party.functions";
 
@@ -20,6 +19,7 @@ export type Party = {
   player2?: string,
   code?: string,
   status?: PartyStatus,
+  canPlay?: boolean,
 }
 
 export type PartyState = {
@@ -56,7 +56,7 @@ export const PartyStore = signalStore(
         ...grids[index],
         sign
       };
-      patchState(store, { grids });
+      patchState(store, { grids, currentParty: {...store.currentParty(), canPlay: !store.currentParty()?.canPlay} });
       const coordinates = getGridIndexTo2dCoordinates(index);
       socketService.emit('playParty', {
         partyId: store.currentParty()?.id,
@@ -100,7 +100,7 @@ export const PartyStore = signalStore(
               next: (response: any) => {
                 const parties: any[] = response.data.map((party: any) => ({...party, status: party.partyState}));
                 const partyInProgress = parties.find(party => party.partyState !== PartyStatus.CANCELED && party.partyState !== PartyStatus.FINISHED)
-                patchState(store, { parties, status: Status.SUCCESS, currentParty: partyInProgress });
+                patchState(store, { parties, status: Status.SUCCESS, currentParty: {...partyInProgress, canPlay: partyInProgress.player1 === playerStore.currentPlayer()?.pseudo} });
               },
               error: ({ error }) => {
                 console.error('Get parties error:', error);
@@ -123,7 +123,7 @@ export const PartyStore = signalStore(
               next: (response: any) => {
                 const data = response.data;
                 patchState(store, {
-                  currentParty: { code: data.code, id: data.id, status: PartyStatus.PENDING_PLAYER, player1: playerStore.currentPlayer()?.pseudo },
+                  currentParty: { code: data.code, id: data.id, status: PartyStatus.PENDING_PLAYER, player1: playerStore.currentPlayer()?.pseudo, canPlay: true },
                   status: Status.SUCCESS,
                 });
                 socketService.emit('joinParty', { partyId: data.id });
@@ -150,7 +150,8 @@ export const PartyStore = signalStore(
                   currentParty: {
                     id: data.id,
                     player1: data.player1,
-                    player2: data.player2
+                    player2: data.player2,
+                    canPlay: false
                   },
                   status: Status.SUCCESS,
                 });
@@ -168,7 +169,7 @@ export const PartyStore = signalStore(
 
     finishParty: rxMethod<void>(
       pipe(
-        tap(() => patchState(store, { currentParty: {...store, status: PartyStatus.FINISHED} })),
+        tap(() => patchState(store, { currentParty: {...store, status: PartyStatus.FINISHED, canPlay: false} })),
       )
     ),
 

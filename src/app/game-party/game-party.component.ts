@@ -36,7 +36,6 @@ export class GamePartyComponent implements OnInit {
   Status = Status;
   displayCodeModal = signal(false);
   displayWaitingPlayer = signal(false);
-  canPlay = signal(false);
 
   form = new FormGroup({
     code: new FormControl('', [Validators.required, Validators.minLength(4)])
@@ -53,6 +52,13 @@ export class GamePartyComponent implements OnInit {
   lineGridIndexs = lineGridIndexs;
 
   currentParty = computed(() => this.partyStore.currentParty());
+  canPlay = computed(() => this.partyStore.currentParty()?.canPlay);
+  playerSign = computed(() => {
+    if(this.currentParty()?.player1 === this.playerStore.currentPlayer()?.pseudo){
+      return 'rond.png'
+    }
+    return 'croix.png'
+  })
 
   constructor(
     private readonly activatedRoute: ActivatedRoute,
@@ -87,7 +93,7 @@ export class GamePartyComponent implements OnInit {
             img: isPlayer1 ? 'img1.png' : 'robot.png'
           },
           {
-            name: isPlayer1 ? this.currentParty()?.player2 ?? '...' : 'toto',
+            name: isPlayer1 ? this.currentParty()?.player2 ?? '...' : this.currentParty()?.player1,
             sign: !isPlayer1 ? 'rond.png' : 'croix.png',
             img: !isPlayer1 ? 'img1.png' : 'robot.png'
           }
@@ -132,15 +138,13 @@ export class GamePartyComponent implements OnInit {
 
     this.socketService.listen('partyJoined').subscribe((data: any) => {
       this.partyStore.updateCurrentParty({ player2: data.player })
-      this.canPlay.set(true)
     })
 
     this.socketService.listen('partyPlayed').subscribe((data: any) => {
-      this.partyStore.partyPlayed(data.move, this.signPlayed)
-      this.canPlay.set(true)
+      const sign = this.playerSign() === 'croix.png' ? 'rond.png' : 'croix.png'
+      this.partyStore.partyPlayed(data.move, sign)
       if (this.hasWon) {
         if (this.hasWon.won) {
-          this.canPlay.set(false)
           this.playWinAudio();
         }
         else {
@@ -152,24 +156,6 @@ export class GamePartyComponent implements OnInit {
         this.partyStore.resetGrid()
       }
     })
-  }
-
-  get signPlayed() {
-    if (!this.isCreating()) {
-      return 'rond.png'
-    }
-    else {
-      return 'croix.png'
-    }
-  }
-
-  get sign() {
-    if (this.isCreating()) {
-      return 'rond.png'
-    }
-    else {
-      return 'croix.png'
-    }
   }
 
   get hasWon() {
@@ -195,12 +181,10 @@ export class GamePartyComponent implements OnInit {
 
   play(gridIndex: number) {
     if (this.canPlay() && this.partyStore.grids()[gridIndex].sign === undefined) {
-      this.partyStore.playing(gridIndex, this.sign)
-      this.canPlay.set(false)
+      this.partyStore.playing(gridIndex, this.playerSign())
     }
     if (this.hasWon) {
       if (this.hasWon.won) {
-        this.canPlay.set(false)
         this.playWinAudio();
       }
       else {
