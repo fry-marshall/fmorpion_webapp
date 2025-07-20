@@ -84,7 +84,7 @@ export const PartyStore = signalStore(
         ...grids[index],
         sign
       };
-      patchState(store, { grids });
+      patchState(store, { grids, currentParty: {...store.currentParty(), canPlay: true} });
     },
 
     updateCurrentParty: (party: Party) => {
@@ -100,9 +100,9 @@ export const PartyStore = signalStore(
               next: (response: any) => {
                 const parties: any[] = response.data.map((party: any) => ({...party, status: party.partyState}));
                 const partyInProgress = parties.find(party => party.partyState !== PartyStatus.CANCELED && party.partyState !== PartyStatus.FINISHED)
-                patchState(store, { parties, status: Status.SUCCESS, currentParty: {...partyInProgress, canPlay: partyInProgress.player1 === playerStore.currentPlayer()?.pseudo} });
+                patchState(store, { parties, status: Status.SUCCESS, currentParty: {...partyInProgress, canPlay: partyInProgress?.player1 === playerStore.currentPlayer()?.pseudo} });
               },
-              error: ({ error }) => {
+              error: ({error} ) => {
                 console.error('Get parties error:', error);
                 patchState(store, { status: Status.ERROR, error });
               },
@@ -169,7 +169,7 @@ export const PartyStore = signalStore(
 
     finishParty: rxMethod<void>(
       pipe(
-        tap(() => patchState(store, { currentParty: {...store, status: PartyStatus.FINISHED, canPlay: false} })),
+        tap(() => patchState(store, { currentParty: {...store.currentParty(), status: PartyStatus.FINISHED, canPlay: false} })),
       )
     ),
 

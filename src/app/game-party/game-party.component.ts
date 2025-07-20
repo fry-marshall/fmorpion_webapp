@@ -53,8 +53,9 @@ export class GamePartyComponent implements OnInit {
 
   currentParty = computed(() => this.partyStore.currentParty());
   canPlay = computed(() => this.partyStore.currentParty()?.canPlay);
+  currentPlayer = computed(() => this.playerStore.currentPlayer());
   playerSign = computed(() => {
-    if(this.currentParty()?.player1 === this.playerStore.currentPlayer()?.pseudo){
+    if(this.currentParty()?.player1 === this.currentPlayer()?.pseudo){
       return 'rond.png'
     }
     return 'croix.png'
@@ -70,7 +71,7 @@ export class GamePartyComponent implements OnInit {
 
     effect(() => {
 
-      if (this.isCreating() && typeof this.currentParty()?.player2 !== 'undefined') {
+      if ((this.isCreating() || this.isGettingBack()) && typeof this.currentParty()?.player2 !== 'undefined') {
         this.displayWaitingPlayer.set(false)
       }
 
@@ -84,7 +85,7 @@ export class GamePartyComponent implements OnInit {
       }
 
       if (this.currentParty()) {
-        const isPlayer1 = this.currentParty()?.player1 === this.playerStore.currentPlayer()?.pseudo;
+        const isPlayer1 = this.currentParty()?.player1 === this.currentPlayer()?.pseudo;
 
         this.players = [
           {
@@ -103,6 +104,7 @@ export class GamePartyComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.currentPlayer())
     if (this.isCreating()) {
       this.displayCodeModal.set(true);
       this.partyStore.createParty();
@@ -161,18 +163,18 @@ export class GamePartyComponent implements OnInit {
   get hasWon() {
     const win = lineGridIndexs(this.partyStore.grids())
     if (win.length > 0) {
-      const firstSign = this.partyStore.grids()[win[0]].sign
+      const firstSign = this.partyStore.grids()[win[0]].sign;
 
-      if (this.isCreating() && firstSign === 'rond.png') {
+      if (this.currentParty()?.player1 === this.currentPlayer()?.pseudo && firstSign === 'rond.png') {
         return { won: true }
       }
-      else if (this.isCreating() && firstSign !== 'rond.png') {
+      else if (this.currentParty()?.player1 === this.currentPlayer()?.pseudo && firstSign !== 'rond.png') {
         return { won: false }
       }
-      else if (!this.isCreating() && firstSign === 'rond.png') {
+      else if (this.currentParty()?.player2 === this.currentPlayer()?.pseudo && firstSign === 'rond.png') {
         return { won: false }
       }
-      else if (!this.isCreating() && firstSign !== 'rond.png') {
+      else if (this.currentParty()?.player2 === this.currentPlayer()?.pseudo && firstSign === 'croix.png') {
         return { won: true }
       }
     }
